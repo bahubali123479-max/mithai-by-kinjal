@@ -64,7 +64,7 @@ function Index() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const onSubmit = async (e: React.SubmitEvent<HTMLFormElement> | React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     const fd = new FormData(e.currentTarget as HTMLFormElement);
