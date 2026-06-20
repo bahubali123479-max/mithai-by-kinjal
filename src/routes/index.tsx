@@ -32,17 +32,17 @@ type Sweet = {
   name: string;
   desc: string;
   price: number;
-  emoji: string;
+  image: string;
   tint: string;
 };
 
 const SWEETS: Sweet[] = [
-  { id: "kaju-katli", name: "Kaju Katli", desc: "Silky cashew diamonds with edible silver leaf.", price: 18, emoji: "🔸", tint: "from-amber-50 to-amber-100" },
-  { id: "gulab-jamun", name: "Gulab Jamun", desc: "Warm milk dumplings soaked in cardamom-rose syrup.", price: 14, emoji: "🟤", tint: "from-orange-50 to-amber-100" },
-  { id: "ladoo", name: "Ladoo (Besan / Motichoor)", desc: "Golden gram flour or pearl ladoo with ghee & nuts.", price: 14, emoji: "🟡", tint: "from-yellow-50 to-amber-100" },
-  { id: "barfi", name: "Barfi (Milk / Coconut)", desc: "Slow-cooked khoya or coconut barfi, melt-in-mouth.", price: 16, emoji: "⬜", tint: "from-rose-50 to-amber-50" },
-  { id: "jalebi", name: "Jalebi", desc: "Crisp saffron spirals dipped in warm sugar syrup.", price: 12, emoji: "🌀", tint: "from-orange-100 to-yellow-50" },
-  { id: "halwa", name: "Halwa (Gajar / Suji)", desc: "Carrot or semolina halwa, rich with ghee and dry fruits.", price: 13, emoji: "🥣", tint: "from-red-50 to-amber-100" },
+  { id: "kaju-katli", name: "Kaju Katli", desc: "Silky cashew diamonds with edible silver leaf.", price: 18, image: imgKajuKatli, tint: "from-amber-50 to-amber-100" },
+  { id: "gulab-jamun", name: "Gulab Jamun", desc: "Warm milk dumplings soaked in cardamom-rose syrup.", price: 14, image: imgGulabJamun, tint: "from-orange-50 to-amber-100" },
+  { id: "ladoo", name: "Ladoo (Besan / Motichoor)", desc: "Golden gram flour or pearl ladoo with ghee & nuts.", price: 14, image: imgLadoo, tint: "from-yellow-50 to-amber-100" },
+  { id: "barfi", name: "Barfi (Milk / Coconut)", desc: "Slow-cooked khoya or coconut barfi, melt-in-mouth.", price: 16, image: imgBarfi, tint: "from-rose-50 to-amber-50" },
+  { id: "jalebi", name: "Jalebi", desc: "Crisp saffron spirals dipped in warm sugar syrup.", price: 12, image: imgJalebi, tint: "from-orange-100 to-yellow-50" },
+  { id: "halwa", name: "Halwa (Gajar / Suji)", desc: "Carrot or semolina halwa, rich with ghee and dry fruits.", price: 13, image: imgHalwa, tint: "from-red-50 to-amber-100" },
 ];
 
 // TODO: Replace with your Formspree form ID (https://formspree.io)
