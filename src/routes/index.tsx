@@ -11,13 +11,13 @@ import imgHalwa from "@/assets/sweets/halwa.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Mithai by Priya — Homemade Indian Sweets in Wesley Chapel, FL" },
+      { title: "Mithai by Kinjal — Homemade Indian Sweets in Wesley Chapel, FL" },
       {
         name: "description",
         content:
           "Order authentic homemade Indian mithai — kaju katli, gulab jamun, ladoo, barfi and more. Made fresh on your order date in Wesley Chapel, Florida.",
       },
-      { property: "og:title", content: "Mithai by Priya — Homemade Indian Sweets" },
+      { property: "og:title", content: "Mithai by Kinjal — Homemade Indian Sweets" },
       {
         property: "og:description",
         content: "Authentic homemade Indian mithai, made fresh in Wesley Chapel, FL.",
@@ -107,7 +107,7 @@ function Index() {
           <div className="flex items-center gap-2">
             <span className="text-2xl">🪔</span>
             <span className="font-display text-xl font-bold text-[var(--deep-red)]">
-              Mithai by Priya
+              Mithai by Kinjal
             </span>
           </div>
           <nav className="hidden sm:flex gap-6 text-sm font-medium">
@@ -302,7 +302,7 @@ function Index() {
 
           <form onSubmit={onSubmit} className="rounded-3xl bg-white p-6 md:p-8 shadow-xl border border-[var(--gold)]/30 space-y-5">
             <Field label="Full Name" required>
-              <input name="name" required className="input" placeholder="Priya Sharma" />
+              <input name="name" required className="input" placeholder="Kinjal Sharma" />
             </Field>
             <div className="grid sm:grid-cols-2 gap-5">
               <Field label="Phone Number" required>
@@ -420,7 +420,7 @@ function Index() {
             },
             {
               name: "Deepika Iyer",
-              text: "Fresh, not too sweet, and beautifully packed. Priya even remembered my husband's diabetes-friendly request. 10/10.",
+              text: "Fresh, not too sweet, and beautifully packed. Kinjal even remembered my husband's diabetes-friendly request. 10/10.",
             },
           ].map((r) => (
             <div key={r.name} className="rounded-3xl bg-white p-6 shadow-md border border-[var(--gold)]/40">
@@ -460,7 +460,7 @@ function Index() {
             </a>
           </div>
           <p className="mt-10 text-xs text-[var(--cream)]/60">
-            © {new Date().getFullYear()} Mithai by Priya · Wesley Chapel, Florida · Made with 🧡
+            © {new Date().getFullYear()} Mithai by Kinjal · Wesley Chapel, Florida · Made with 🧡
           </p>
         </div>
       </section>
