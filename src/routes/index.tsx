@@ -204,8 +204,15 @@ function Index() {
                     : "border-transparent"
                 }`}
               >
-                <div className={`h-32 rounded-2xl bg-gradient-to-br ${s.tint} flex items-center justify-center text-6xl`}>
-                  <span>{s.emoji}</span>
+                <div className="h-40 rounded-2xl overflow-hidden">
+                  <img
+                    src={s.image}
+                    alt={s.name}
+                    loading="lazy"
+                    width={512}
+                    height={512}
+                    className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                  />
                 </div>
                 <div className="mt-4 flex items-start justify-between gap-3">
                   <div>
