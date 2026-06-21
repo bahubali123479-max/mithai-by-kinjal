@@ -452,7 +452,7 @@ function Index() {
             {/* Honeypot Spam Protection (Invisible to humans) */}
             <input type="checkbox" name="botcheck" className="hidden" style={{ display: "none" }} />
             <Field label="Full Name" required>
-              <input name="name" required className="input" placeholder="Kinjal Sharma" />
+              <input name="name" required className="input" placeholder="Kinjal Joshi" />
             </Field>
             <div className="grid sm:grid-cols-2 gap-5">
               <Field label="Phone Number" required>
