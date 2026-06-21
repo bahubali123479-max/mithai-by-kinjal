@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import heroMithai from "@/assets/hero-mithai.jpg";
 import imgMohanThal from "@/assets/sweets/mohan-thal.png";
-import imgKajuKatli from "@/assets/sweets/kaju-katli.jpg";
+import imgKajuKatli from "@/assets/sweets/kaju-katli.png";
 import imgGulabJamun from "@/assets/sweets/gulab-jamun.jpg";
 import imgLadoo from "@/assets/sweets/ladoo.jpg";
 import imgBarfi from "@/assets/sweets/barfi.jpg";
@@ -271,6 +271,7 @@ function Index() {
             <div className="mt-6 flex flex-wrap gap-4 text-sm text-muted-foreground">
               <span>✦ 100% homemade</span>
               <span>✦ Pure ghee</span>
+              <span>✦ Sugar-free options available</span>
               <span>✦ Min order $20</span>
             </div>
           </div>
@@ -296,9 +297,13 @@ function Index() {
           <h2 className="font-display text-4xl md:text-5xl font-bold text-[var(--deep-red)] mt-2">
             Pick your favourites
           </h2>
-          <p className="mt-3 text-muted-foreground">
+          <p className="mt-3 text-muted-foreground font-medium">
             Prices per 500g • Tick what you'd like, then fill the form below.
           </p>
+          <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3.5 py-1 text-xs font-semibold text-emerald-800 shadow-sm">
+            <span className="text-sm">🍃</span>
+            <span>Sugar-free options available on request</span>
+          </div>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -388,7 +393,7 @@ function Index() {
               value={special}
               onChange={(e) => setSpecial(e.target.value)}
               rows={3}
-              placeholder="e.g. 1kg mysore pak for Diwali, less sugar please"
+              placeholder="e.g. 1kg sugar-free Mohan Thal, or less sugar option..."
               className="w-full rounded-xl border-2 border-[var(--input)] bg-[var(--cream)] p-3 focus:outline-none focus:border-[var(--saffron)]"
             />
           </label>
@@ -533,7 +538,7 @@ function Index() {
                 name="instructions"
                 rows={3}
                 className="input"
-                placeholder="Less sugar, no nuts, festival packaging, etc."
+                placeholder="Sugar-free options, less sugar, no nuts, festival packaging, etc."
               />
             </Field>
 
