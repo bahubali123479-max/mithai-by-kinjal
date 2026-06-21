@@ -35,6 +35,7 @@ type Sweet = {
   price: number;
   image: string;
   tint: string;
+  ingredients: string;
 };
 
 const SWEETS: Sweet[] = [
@@ -45,6 +46,7 @@ const SWEETS: Sweet[] = [
     price: 16,
     image: imgMohanThal,
     tint: "from-amber-100 to-yellow-50",
+    ingredients: "Gram flour (besan), pure ghee, sugar, milk, cardamom, nutmeg, almonds, pistachios",
   },
   {
     id: "kaju-katli",
@@ -53,6 +55,7 @@ const SWEETS: Sweet[] = [
     price: 18,
     image: imgKajuKatli,
     tint: "from-amber-50 to-amber-100",
+    ingredients: "Premium cashews, sugar, water, pure ghee, edible silver leaf (vark)",
   },
   {
     id: "gulab-jamun",
@@ -61,6 +64,7 @@ const SWEETS: Sweet[] = [
     price: 14,
     image: imgGulabJamun,
     tint: "from-orange-50 to-amber-100",
+    ingredients: "Khoya (milk solids), paneer, all-purpose flour, sugar, cardamom, rose water, ghee",
   },
   {
     id: "ladoo",
@@ -69,6 +73,7 @@ const SWEETS: Sweet[] = [
     price: 14,
     image: imgLadoo,
     tint: "from-yellow-50 to-amber-100",
+    ingredients: "Gram flour/chickpea flour, pure ghee, sugar, cardamom, melon seeds, almonds, pistachios",
   },
   {
     id: "barfi",
@@ -77,6 +82,7 @@ const SWEETS: Sweet[] = [
     price: 16,
     image: imgBarfi,
     tint: "from-rose-50 to-amber-50",
+    ingredients: "Khoya (milk solids) / shredded coconut, sugar, pure ghee, cardamom, pistachios",
   },
   {
     id: "jalebi",
@@ -85,6 +91,7 @@ const SWEETS: Sweet[] = [
     price: 12,
     image: imgJalebi,
     tint: "from-orange-100 to-yellow-50",
+    ingredients: "All-purpose flour, cornflour, yogurt, sugar, saffron, cardamom, lemon juice, pure ghee",
   },
   {
     id: "halwa",
@@ -93,6 +100,7 @@ const SWEETS: Sweet[] = [
     price: 13,
     image: imgHalwa,
     tint: "from-red-50 to-amber-100",
+    ingredients: "Fresh carrots/semolina (suji), whole milk, sugar, pure ghee, cardamom, cashews, raisins, almonds",
   },
 ];
 
@@ -313,13 +321,13 @@ function Index() {
             return (
               <div
                 key={s.id}
-                className={`group relative rounded-3xl border-2 bg-white p-5 transition shadow-sm hover:-translate-y-1 hover:shadow-xl ${
+                className={`flex flex-col h-full group relative rounded-3xl border-2 bg-white p-5 transition shadow-sm hover:-translate-y-1 hover:shadow-xl ${
                   on
                     ? "border-[var(--saffron)] ring-4 ring-[var(--saffron)]/20"
                     : "border-transparent"
                 }`}
               >
-                <div className="h-40 rounded-2xl overflow-hidden">
+                <div className="h-40 rounded-2xl overflow-hidden shrink-0">
                   <img
                     src={s.image}
                     alt={s.name}
@@ -329,52 +337,57 @@ function Index() {
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                   />
                 </div>
-                <div className="mt-4 flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="font-display text-xl font-bold text-[var(--deep-red)]">
-                      {s.name}
-                    </h3>
-                    <p className="mt-1 text-sm text-muted-foreground leading-snug">{s.desc}</p>
-                  </div>
-                  <span className="shrink-0 rounded-full bg-[var(--gold)]/30 px-3 py-1 text-sm font-bold text-[var(--deep-red)]">
-                    ${s.price * (qty || 1)}
-                  </span>
-                </div>
-                <div className="mt-4 flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">
-                    {qty > 0
-                      ? `for ${qty * 500 >= 1000 ? `${(qty * 500) / 1000}kg` : `${qty * 500}g`}`
-                      : "per 500g"}
-                  </span>
-                  {on ? (
-                    <div className="flex items-center gap-2 bg-[var(--cream)] rounded-full px-2 py-1 border border-[var(--gold)]/50">
-                      <button
-                        type="button"
-                        onClick={() => updateQty(s.id, qty - 1)}
-                        className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[var(--deep-red)] border border-[var(--border)] hover:bg-[var(--saffron)] hover:text-white transition font-bold text-sm"
-                      >
-                        -
-                      </button>
-                      <span className="text-sm font-bold text-[var(--deep-red)] min-w-[70px] text-center">
-                        {qty * 500 >= 1000 ? `${(qty * 500) / 1000}kg` : `${qty * 500}g`}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => updateQty(s.id, qty + 1)}
-                        className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[var(--deep-red)] border border-[var(--border)] hover:bg-[var(--saffron)] hover:text-white transition font-bold text-sm"
-                      >
-                        +
-                      </button>
+                <div className="flex-grow flex flex-col justify-between">
+                  <div className="mt-4 flex items-start justify-between gap-3">
+                    <div>
+                      <h3 className="font-display text-xl font-bold text-[var(--deep-red)]">
+                        {s.name}
+                      </h3>
+                      <p className="mt-1 text-sm text-muted-foreground leading-snug">{s.desc}</p>
+                      <p className="mt-2 text-[11px] text-muted-foreground bg-[var(--cream)]/60 border border-[var(--gold)]/20 rounded-lg px-2 py-1">
+                        <span className="font-semibold text-[var(--deep-red)]">Ingredients:</span> {s.ingredients}
+                      </p>
                     </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => updateQty(s.id, 1)}
-                      className="inline-flex items-center gap-2 rounded-full bg-[var(--saffron)] px-4 py-1.5 text-sm font-bold text-white shadow-sm hover:bg-[var(--deep-red)] transition"
-                    >
-                      <span>+ Add</span>
-                    </button>
-                  )}
+                    <span className="shrink-0 rounded-full bg-[var(--gold)]/30 px-3 py-1 text-sm font-bold text-[var(--deep-red)]">
+                      ${s.price * (qty || 1)}
+                    </span>
+                  </div>
+                  <div className="mt-4 flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">
+                      {qty > 0
+                        ? `for ${qty * 500 >= 1000 ? `${(qty * 500) / 1000}kg` : `${qty * 500}g`}`
+                        : "per 500g"}
+                    </span>
+                    {on ? (
+                      <div className="flex items-center gap-2 bg-[var(--cream)] rounded-full px-2 py-1 border border-[var(--gold)]/50">
+                        <button
+                          type="button"
+                          onClick={() => updateQty(s.id, qty - 1)}
+                          className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[var(--deep-red)] border border-[var(--border)] hover:bg-[var(--saffron)] hover:text-white transition font-bold text-sm"
+                        >
+                          -
+                        </button>
+                        <span className="text-sm font-bold text-[var(--deep-red)] min-w-[70px] text-center">
+                          {qty * 500 >= 1000 ? `${(qty * 500) / 1000}kg` : `${qty * 500}g`}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => updateQty(s.id, qty + 1)}
+                          className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[var(--deep-red)] border border-[var(--border)] hover:bg-[var(--saffron)] hover:text-white transition font-bold text-sm"
+                        >
+                          +
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => updateQty(s.id, 1)}
+                        className="inline-flex items-center gap-2 rounded-full bg-[var(--saffron)] px-4 py-1.5 text-sm font-bold text-white shadow-sm hover:bg-[var(--deep-red)] transition"
+                      >
+                        <span>+ Add</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             );
