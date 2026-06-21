@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build && mkdir -p dist/assets && cp -R dist/client/assets/* dist/assets/",
+    "build": "vite build && mkdir -p dist/assets && cp -R dist/client/assets/* dist/assets/ && printf '/assets/*\\n  cache-control: public, max-age=31536000, immutable\\n' > dist/client/_headers",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
