@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import heroMithai from "@/assets/hero-mithai.jpg";
+import imgMohanThal from "@/assets/sweets/mohan-thal.png";
 import imgKajuKatli from "@/assets/sweets/kaju-katli.jpg";
 import imgGulabJamun from "@/assets/sweets/gulab-jamun.jpg";
 import imgLadoo from "@/assets/sweets/ladoo.jpg";
@@ -37,34 +38,94 @@ type Sweet = {
 };
 
 const SWEETS: Sweet[] = [
-  { id: "kaju-katli", name: "Kaju Katli", desc: "Silky cashew diamonds with edible silver leaf.", price: 18, image: imgKajuKatli, tint: "from-amber-50 to-amber-100" },
-  { id: "gulab-jamun", name: "Gulab Jamun", desc: "Warm milk dumplings soaked in cardamom-rose syrup.", price: 14, image: imgGulabJamun, tint: "from-orange-50 to-amber-100" },
-  { id: "ladoo", name: "Ladoo (Besan / Motichoor)", desc: "Golden gram flour or pearl ladoo with ghee & nuts.", price: 14, image: imgLadoo, tint: "from-yellow-50 to-amber-100" },
-  { id: "barfi", name: "Barfi (Milk / Coconut)", desc: "Slow-cooked khoya or coconut barfi, melt-in-mouth.", price: 16, image: imgBarfi, tint: "from-rose-50 to-amber-50" },
-  { id: "jalebi", name: "Jalebi", desc: "Crisp saffron spirals dipped in warm sugar syrup.", price: 12, image: imgJalebi, tint: "from-orange-100 to-yellow-50" },
-  { id: "halwa", name: "Halwa (Gajar / Suji)", desc: "Carrot or semolina halwa, rich with ghee and dry fruits.", price: 13, image: imgHalwa, tint: "from-red-50 to-amber-100" },
+  {
+    id: "mohan-thal",
+    name: "Mohan Thal",
+    desc: "Traditional Gujarati golden-brown gram flour fudge garnished with almonds and pistachios.",
+    price: 16,
+    image: imgMohanThal,
+    tint: "from-amber-100 to-yellow-50",
+  },
+  {
+    id: "kaju-katli",
+    name: "Kaju Katli",
+    desc: "Silky cashew diamonds with edible silver leaf.",
+    price: 18,
+    image: imgKajuKatli,
+    tint: "from-amber-50 to-amber-100",
+  },
+  {
+    id: "gulab-jamun",
+    name: "Gulab Jamun",
+    desc: "Warm milk dumplings soaked in cardamom-rose syrup.",
+    price: 14,
+    image: imgGulabJamun,
+    tint: "from-orange-50 to-amber-100",
+  },
+  {
+    id: "ladoo",
+    name: "Ladoo (Besan / Motichoor)",
+    desc: "Golden gram flour or pearl ladoo with ghee & nuts.",
+    price: 14,
+    image: imgLadoo,
+    tint: "from-yellow-50 to-amber-100",
+  },
+  {
+    id: "barfi",
+    name: "Barfi (Milk / Coconut)",
+    desc: "Slow-cooked khoya or coconut barfi, melt-in-mouth.",
+    price: 16,
+    image: imgBarfi,
+    tint: "from-rose-50 to-amber-50",
+  },
+  {
+    id: "jalebi",
+    name: "Jalebi",
+    desc: "Crisp saffron spirals dipped in warm sugar syrup.",
+    price: 12,
+    image: imgJalebi,
+    tint: "from-orange-100 to-yellow-50",
+  },
+  {
+    id: "halwa",
+    name: "Halwa (Gajar / Suji)",
+    desc: "Carrot or semolina halwa, rich with ghee and dry fruits.",
+    price: 13,
+    image: imgHalwa,
+    tint: "from-red-50 to-amber-100",
+  },
 ];
 
-// TODO: Replace with your Formspree form ID (https://formspree.io)
-const FORMSPREE_ENDPOINT = "https://formspree.io/f/your_form_id";
+// Web3Forms Endpoint & Access Key
+const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
+const WEB3FORMS_ACCESS_KEY = "3bfba655-2c50-49f0-93f3-89a6590b2969";
 
 // TODO: Replace with your real numbers / handles
-const WHATSAPP_NUMBER = "1XXXXXXXXXX"; // country code + number, no '+'
+const WHATSAPP_NUMBER = "15104023608"; // country code + number, no '+'
 const INSTAGRAM_HANDLE = "yourhandle";
 
 function Index() {
-  const [selected, setSelected] = useState<Record<string, boolean>>({});
+  const [selected, setSelected] = useState<Record<string, number>>({});
   const [special, setSpecial] = useState("");
   const [mode, setMode] = useState<"Pickup" | "Delivery">("Pickup");
   const [submitted, setSubmitted] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const toggle = (id: string) =>
-    setSelected((s) => ({ ...s, [id]: !s[id] }));
+  const updateQty = (id: string, qty: number) => {
+    setSelected((prev) => {
+      const next = { ...prev };
+      if (qty <= 0) {
+        delete next[id];
+      } else {
+        next[id] = qty;
+      }
+      return next;
+    });
+  };
 
-  const selectedSweets = SWEETS.filter((s) => selected[s.id]);
-  const estimate = selectedSweets.reduce((sum, s) => sum + s.price, 0);
+  const selectedSweets = SWEETS.filter((s) => (selected[s.id] || 0) > 0);
+  const estimate = selectedSweets.reduce((sum, s) => sum + s.price * (selected[s.id] || 0), 0);
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -73,24 +134,56 @@ function Index() {
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
-    const fd = new FormData(e.currentTarget as HTMLFormElement);
+
+    // Rate Limiting: Prevent submissions more than once every 60 seconds
+    const lastSubmitTime = localStorage.getItem("last_submit_time");
+    const now = Date.now();
+    if (lastSubmitTime && now - Number(lastSubmitTime) < 60000) {
+      const waitSeconds = Math.ceil((60000 - (now - Number(lastSubmitTime))) / 1000);
+      setError(`Please wait ${waitSeconds} seconds before submitting another order request.`);
+      return;
+    }
+
+    const formElement = e.currentTarget;
+    const fd = new FormData(formElement);
     const name = String(fd.get("name") || "");
-    const sweetList = selectedSweets.map((s) => `${s.name} ($${s.price}/500g)`).join(", ");
+
+    // Check if botcheck was filled (Honeypot client fallback)
+    if (fd.get("botcheck")) {
+      setError("Spam submission detected.");
+      return;
+    }
+
+    const sweetList = selectedSweets
+      .map((s) => {
+        const qty = selected[s.id] || 0;
+        const weightStr = qty * 0.5 >= 1 ? `${qty * 0.5}kg` : `${qty * 500}g`;
+        return `${s.name} (${weightStr} - $${s.price * qty})`;
+      })
+      .join(", ");
+    fd.append("access_key", WEB3FORMS_ACCESS_KEY);
+    fd.append("subject", `New Order Request from ${name}`);
+    fd.append("from_name", "Mithai by Kinjal Website");
     fd.append("Selected Sweets", sweetList || "(none)");
     fd.append("Special Request (menu)", special);
     fd.append("Estimated minimum total", `$${estimate}`);
 
     setSubmitting(true);
     try {
-      const res = await fetch(FORMSPREE_ENDPOINT, {
+      const res = await fetch(WEB3FORMS_ENDPOINT, {
         method: "POST",
         body: fd,
         headers: { Accept: "application/json" },
       });
-      if (!res.ok && !FORMSPREE_ENDPOINT.includes("your_form_id")) {
-        throw new Error("Could not send order. Please try again or WhatsApp us.");
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Could not send order. Please try again or WhatsApp us.");
       }
+      localStorage.setItem("last_submit_time", String(Date.now()));
       setSubmitted(name || "friend");
+      setSelected({});
+      setSpecial("");
+      formElement.reset();
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -111,10 +204,18 @@ function Index() {
             </span>
           </div>
           <nav className="hidden sm:flex gap-6 text-sm font-medium">
-            <button onClick={() => scrollTo("menu")} className="hover:text-[var(--saffron)]">Menu</button>
-            <button onClick={() => scrollTo("order")} className="hover:text-[var(--saffron)]">Order</button>
-            <button onClick={() => scrollTo("reviews")} className="hover:text-[var(--saffron)]">Reviews</button>
-            <button onClick={() => scrollTo("contact")} className="hover:text-[var(--saffron)]">Contact</button>
+            <button onClick={() => scrollTo("menu")} className="hover:text-[var(--saffron)]">
+              Menu
+            </button>
+            <button onClick={() => scrollTo("order")} className="hover:text-[var(--saffron)]">
+              Order
+            </button>
+            <button onClick={() => scrollTo("reviews")} className="hover:text-[var(--saffron)]">
+              Reviews
+            </button>
+            <button onClick={() => scrollTo("contact")} className="hover:text-[var(--saffron)]">
+              Contact
+            </button>
           </nav>
         </div>
       </header>
@@ -136,8 +237,8 @@ function Index() {
                   Thank you, {submitted}! 🙏
                 </h2>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Your order request is received. I will call/WhatsApp you within a few hours
-                  to confirm your order and share payment details (Zelle / Venmo / Cash).
+                  Your order request is received. I will call/WhatsApp you within a few hours to
+                  confirm your order and share payment details (Zelle / Venmo / Cash).
                 </p>
               </div>
             )}
@@ -146,14 +247,18 @@ function Index() {
               Now taking orders in Wesley Chapel
             </span>
             <h1 className="mt-4 font-display text-4xl md:text-6xl font-extrabold leading-[1.05] text-[var(--deep-red)]">
-              Authentic Homemade <span className="text-[var(--saffron)]">Indian Mithai</span> — Made Fresh in Wesley Chapel, FL
+              Authentic Homemade <span className="text-[var(--saffron)]">Indian Mithai</span> — Made
+              Fresh in Wesley Chapel, FL
             </h1>
             <p className="mt-5 text-lg text-muted-foreground max-w-xl">
               Recipes from my grandmother's kitchen, made fresh on your order date with pure ghee,
               real khoya, and zero shortcuts.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <button onClick={() => scrollTo("order")} className="btn-primary hover:btn-primary-hover">
+              <button
+                onClick={() => scrollTo("order")}
+                className="btn-primary hover:btn-primary-hover"
+              >
                 Order Now →
               </button>
               <button
@@ -185,20 +290,25 @@ function Index() {
       {/* MENU */}
       <section id="menu" className="mx-auto max-w-6xl px-5 py-16 md:py-24">
         <div className="text-center mb-10">
-          <p className="text-sm font-semibold tracking-widest text-[var(--saffron)] uppercase">The Menu</p>
+          <p className="text-sm font-semibold tracking-widest text-[var(--saffron)] uppercase">
+            The Menu
+          </p>
           <h2 className="font-display text-4xl md:text-5xl font-bold text-[var(--deep-red)] mt-2">
             Pick your favourites
           </h2>
-          <p className="mt-3 text-muted-foreground">Prices per 500g • Tick what you'd like, then fill the form below.</p>
+          <p className="mt-3 text-muted-foreground">
+            Prices per 500g • Tick what you'd like, then fill the form below.
+          </p>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {SWEETS.map((s) => {
-            const on = !!selected[s.id];
+            const qty = selected[s.id] || 0;
+            const on = qty > 0;
             return (
-              <label
+              <div
                 key={s.id}
-                className={`group relative cursor-pointer rounded-3xl border-2 bg-white p-5 transition shadow-sm hover:-translate-y-1 hover:shadow-xl ${
+                className={`group relative rounded-3xl border-2 bg-white p-5 transition shadow-sm hover:-translate-y-1 hover:shadow-xl ${
                   on
                     ? "border-[var(--saffron)] ring-4 ring-[var(--saffron)]/20"
                     : "border-transparent"
@@ -216,45 +326,61 @@ function Index() {
                 </div>
                 <div className="mt-4 flex items-start justify-between gap-3">
                   <div>
-                    <h3 className="font-display text-xl font-bold text-[var(--deep-red)]">{s.name}</h3>
+                    <h3 className="font-display text-xl font-bold text-[var(--deep-red)]">
+                      {s.name}
+                    </h3>
                     <p className="mt-1 text-sm text-muted-foreground leading-snug">{s.desc}</p>
                   </div>
                   <span className="shrink-0 rounded-full bg-[var(--gold)]/30 px-3 py-1 text-sm font-bold text-[var(--deep-red)]">
-                    ${s.price}
+                    ${s.price * (qty || 1)}
                   </span>
                 </div>
                 <div className="mt-4 flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">per 500g</span>
-                  <span
-                    className={`inline-flex items-center gap-2 text-sm font-semibold ${
-                      on ? "text-[var(--saffron)]" : "text-muted-foreground"
-                    }`}
-                  >
-                    <span
-                      className={`flex h-5 w-5 items-center justify-center rounded-md border-2 transition ${
-                        on ? "border-[var(--saffron)] bg-[var(--saffron)] text-white" : "border-[var(--border)]"
-                      }`}
-                      aria-hidden
-                    >
-                      {on ? "✓" : ""}
-                    </span>
-                    {on ? "Added" : "Add"}
+                  <span className="text-xs text-muted-foreground">
+                    {qty > 0
+                      ? `for ${qty * 500 >= 1000 ? `${(qty * 500) / 1000}kg` : `${qty * 500}g`}`
+                      : "per 500g"}
                   </span>
+                  {on ? (
+                    <div className="flex items-center gap-2 bg-[var(--cream)] rounded-full px-2 py-1 border border-[var(--gold)]/50">
+                      <button
+                        type="button"
+                        onClick={() => updateQty(s.id, qty - 1)}
+                        className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[var(--deep-red)] border border-[var(--border)] hover:bg-[var(--saffron)] hover:text-white transition font-bold text-sm"
+                      >
+                        -
+                      </button>
+                      <span className="text-sm font-bold text-[var(--deep-red)] min-w-[70px] text-center">
+                        {qty * 500 >= 1000 ? `${(qty * 500) / 1000}kg` : `${qty * 500}g`}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => updateQty(s.id, qty + 1)}
+                        className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[var(--deep-red)] border border-[var(--border)] hover:bg-[var(--saffron)] hover:text-white transition font-bold text-sm"
+                      >
+                        +
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => updateQty(s.id, 1)}
+                      className="inline-flex items-center gap-2 rounded-full bg-[var(--saffron)] px-4 py-1.5 text-sm font-bold text-white shadow-sm hover:bg-[var(--deep-red)] transition"
+                    >
+                      <span>+ Add</span>
+                    </button>
+                  )}
                 </div>
-                <input
-                  type="checkbox"
-                  className="sr-only"
-                  checked={on}
-                  onChange={() => toggle(s.id)}
-                />
-              </label>
+              </div>
             );
           })}
         </div>
 
         <div className="mt-8 rounded-3xl bg-white p-5 border-2 border-dashed border-[var(--saffron)]/40">
           <label className="block">
-            <span className="font-display text-lg font-bold text-[var(--deep-red)]">Special request</span>
+            <span className="font-display text-lg font-bold text-[var(--deep-red)]">
+              Special request
+            </span>
             <span className="block text-sm text-muted-foreground mb-2">
               Something not on the menu? Tell me — kheer, peda, mysore pak, festival platters…
             </span>
@@ -270,10 +396,15 @@ function Index() {
       </section>
 
       {/* ORDER FORM */}
-      <section id="order" className="bg-gradient-to-b from-[var(--cream)] to-[#FFEFC8] py-16 md:py-24">
+      <section
+        id="order"
+        className="bg-gradient-to-b from-[var(--cream)] to-[#FFEFC8] py-16 md:py-24"
+      >
         <div className="mx-auto max-w-3xl px-5">
           <div className="text-center mb-10">
-            <p className="text-sm font-semibold tracking-widest text-[var(--saffron)] uppercase">Place your order</p>
+            <p className="text-sm font-semibold tracking-widest text-[var(--saffron)] uppercase">
+              Place your order
+            </p>
             <h2 className="font-display text-4xl md:text-5xl font-bold text-[var(--deep-red)] mt-2">
               Tell me what you need
             </h2>
@@ -286,30 +417,56 @@ function Index() {
             <div className="mb-6 rounded-2xl bg-white border-2 border-[var(--gold)] p-5">
               <h3 className="font-display font-bold text-[var(--deep-red)]">Your selection</h3>
               <ul className="mt-2 space-y-1 text-sm">
-                {selectedSweets.map((s) => (
-                  <li key={s.id} className="flex justify-between">
-                    <span>{s.name}</span>
-                    <span className="font-semibold">${s.price}/500g</span>
-                  </li>
-                ))}
+                {selectedSweets.map((s) => {
+                  const qty = selected[s.id] || 0;
+                  const weightStr = qty * 0.5 >= 1 ? `${qty * 0.5}kg` : `${qty * 500}g`;
+                  return (
+                    <li key={s.id} className="flex justify-between animate-fade-in">
+                      <span>
+                        {s.name}{" "}
+                        <span className="text-xs text-muted-foreground">
+                          ({weightStr} - ${s.price}/500g)
+                        </span>
+                      </span>
+                      <span className="font-semibold">${s.price * qty}</span>
+                    </li>
+                  );
+                })}
               </ul>
               <div className="mt-3 pt-3 border-t border-dashed flex justify-between text-sm">
-                <span className="text-muted-foreground">Estimated minimum (500g each)</span>
+                <span className="text-muted-foreground">Estimated minimum total</span>
                 <span className="font-bold text-[var(--deep-red)]">${estimate}</span>
               </div>
             </div>
           )}
 
-          <form onSubmit={onSubmit} className="rounded-3xl bg-white p-6 md:p-8 shadow-xl border border-[var(--gold)]/30 space-y-5">
+          <form
+            onSubmit={onSubmit}
+            className="rounded-3xl bg-white p-6 md:p-8 shadow-xl border border-[var(--gold)]/30 space-y-5"
+          >
+            {/* Honeypot Spam Protection (Invisible to humans) */}
+            <input type="checkbox" name="botcheck" className="hidden" style={{ display: "none" }} />
             <Field label="Full Name" required>
               <input name="name" required className="input" placeholder="Kinjal Sharma" />
             </Field>
             <div className="grid sm:grid-cols-2 gap-5">
               <Field label="Phone Number" required>
-                <input name="phone" type="tel" required className="input" placeholder="(813) 555-0100" />
+                <input
+                  name="phone"
+                  type="tel"
+                  required
+                  className="input"
+                  placeholder="(813) 555-0100"
+                />
               </Field>
               <Field label="Email" required>
-                <input name="email" type="email" required className="input" placeholder="you@example.com" />
+                <input
+                  name="email"
+                  type="email"
+                  required
+                  className="input"
+                  placeholder="you@example.com"
+                />
               </Field>
             </div>
 
@@ -403,7 +560,9 @@ function Index() {
       {/* REVIEWS */}
       <section id="reviews" className="mx-auto max-w-6xl px-5 py-16 md:py-24">
         <div className="text-center mb-10">
-          <p className="text-sm font-semibold tracking-widest text-[var(--saffron)] uppercase">Kind words</p>
+          <p className="text-sm font-semibold tracking-widest text-[var(--saffron)] uppercase">
+            Kind words
+          </p>
           <h2 className="font-display text-4xl md:text-5xl font-bold text-[var(--deep-red)] mt-2">
             Loved by our neighbours
           </h2>
@@ -423,7 +582,10 @@ function Index() {
               text: "Fresh, not too sweet, and beautifully packed. Kinjal even remembered my husband's diabetes-friendly request. 10/10.",
             },
           ].map((r) => (
-            <div key={r.name} className="rounded-3xl bg-white p-6 shadow-md border border-[var(--gold)]/40">
+            <div
+              key={r.name}
+              className="rounded-3xl bg-white p-6 shadow-md border border-[var(--gold)]/40"
+            >
               <div className="text-[var(--gold)] text-lg">★★★★★</div>
               <p className="mt-3 text-foreground leading-relaxed">"{r.text}"</p>
               <p className="mt-4 font-display font-bold text-[var(--deep-red)]">— {r.name}</p>
@@ -439,7 +601,8 @@ function Index() {
             Let's talk sweets
           </h2>
           <p className="mt-4 text-[var(--cream)]/80 max-w-xl mx-auto">
-            All orders are made fresh. Minimum order $20. Delivery within 15 miles of Wesley Chapel, FL.
+            All orders are made fresh. Minimum order $20. Delivery within 15 miles of Wesley Chapel,
+            FL.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <a
